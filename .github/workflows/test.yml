@@ -5,6 +5,10 @@ on:
     branches: [ "master" ]
   workflow_dispatch:
 
+concurrency:
+  group: '测试'
+  cancel-in-progress: true
+
 jobs:
   build-iso:
     runs-on: ubuntu-latest
