@@ -14,49 +14,42 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: archlinux:latest
-      options: --privileged  # 需要特权模式用于archiso构建
+      options: --privileged
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      with:
-        repository: chriskmanx/qmole-packages
+
+    - name: Setup system
+      run: |
+        # 创建 builder 用户和组
+        useradd -m -s /bin/bash builder
+        echo 'builder ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+        groupadd -f alpm
+        usermod -aG alpm builder
+
+        # 初始化 pacman
+        pacman-key --init
+        pacman-key --populate archlinux
 
     - name: Install dependencies
       run: |
-        # 使用root安装系统依赖
-        pacman -Sy --noconfirm archiso reflector git base-devel
+        # 安装基础依赖
+        pacman -Sy --noconfirm archiso reflector git base-devel sudo
         
-        # 切换到builder用户的家目录操作
+        # 安装 aurutils
         sudo -u builder git clone https://aur.archlinux.org/aurutils.git /home/builder/aurutils
         cd /home/builder/aurutils
         sudo -u builder makepkg -si --noconfirm
-        
-        # 创建必要的用户组
-        groupadd -f alpm
-        usermod -aG alpm builder
-
-    - name: Install dependencies
-      run: |
-        # 使用普通用户安装系统依赖
-        sudo -u builder sudo pacman -Sy --noconfirm archiso reflector git base-devel
-        
-        # 安装aurutils
-        sudo -u builder git clone https://aur.archlinux.org/aurutils.git
-        cd aurutils
-        sudo -u builder makepkg -si --noconfirm
-        cd ..
-        
-        # 创建必要的用户组
-        groupadd -f alpm
-        usermod -aG alpm builder
 
     - name: Make build script executable
       run: chmod +x build.bash
 
     - name: Run build script
       run: |
-        # 切换用户执行构建脚本
+        # 修复文件权限
+        chown -R builder:builder .
+        # 执行构建
         sudo -u builder ./build.bash --noconfirm
 
     - name: Upload ISO artifact
