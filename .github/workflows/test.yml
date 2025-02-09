@@ -17,9 +17,6 @@ jobs:
       options: --privileged
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
     - name: Setup system
       run: |
         # 先安装sudo
@@ -43,6 +40,11 @@ jobs:
         sudo -u builder git clone https://aur.archlinux.org/aurutils.git /home/builder/aurutils
         cd /home/builder/aurutils
         sudo -u builder makepkg -si --noconfirm
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        repository: xenhelinux/xenhelinux-iso
 
     - name: Make build script executable
       run: chmod +x build.bash
