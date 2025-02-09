@@ -25,14 +25,14 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pacman -Sy --noconfirm archiso reflector git base-devel aurutils
+        pacman -Sy --noconfirm archiso reflector git base-devel
         # 安装aurutils
-        # git clone https://aur.archlinux.org/aurutils.git
-        # cd aurutils
-        # makepkg -si --noconfirm
-        # cd ..
+        git clone https://aur.archlinux.org/aurutils.git
+        cd aurutils
+        makepkg -si --noconfirm
+        cd ..
         # 创建alpm用户组
-        # groupadd -f alpm
+        groupadd -f alpm
 
     - name: Make build script executable
       run: chmod +x build.bash
