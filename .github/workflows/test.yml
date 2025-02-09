@@ -41,10 +41,13 @@ jobs:
         cd /home/builder/aurutils
         sudo -u builder makepkg -si --noconfirm
 
+    # - name: Checkout repository
+    #   uses: actions/checkout@v4
+    #   with:
+    #     repository: xenhelinux/xenhelinux-iso
+
     - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        repository: xenhelinux/xenhelinux-iso
+      run: git clone https://github.com/xenhelinux/xenhelinux-iso.git --depth=1
 
     - name: Make build script executable
       run: chmod +x build.bash
