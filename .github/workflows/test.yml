@@ -24,6 +24,8 @@ jobs:
 
     - name: Initialize system
       run: |
+        # 安装sudo
+        pacman -Sy --noconfirm sudo
         # 创建普通用户
         useradd -m -G wheel -s /bin/bash builder
         echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
