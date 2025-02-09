@@ -1,0 +1,46 @@
+name: Build XenHe Linux ISO
+
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-iso:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged  # 需要特权模式用于archiso构建
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize pacman
+      run: |
+        pacman-key --init
+        pacman-key --populate archlinux
+
+    - name: Install dependencies
+      run: |
+        pacman -Sy --noconfirm archiso reflector git base-devel aurutils
+        # 安装aurutils
+        # git clone https://aur.archlinux.org/aurutils.git
+        # cd aurutils
+        # makepkg -si --noconfirm
+        # cd ..
+        # 创建alpm用户组
+        # groupadd -f alpm
+
+    - name: Make build script executable
+      run: chmod +x build.bash
+
+    - name: Run build script
+      run: ./build.bash --noconfirm
+
+    - name: Upload ISO artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: xenhe-linux-iso
+        path: target/*.iso
+        retention-days: 5
