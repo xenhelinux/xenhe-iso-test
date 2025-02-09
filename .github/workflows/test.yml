@@ -22,27 +22,38 @@ jobs:
       with:
         repository: chriskmanx/qmole-packages
 
-    - name: Initialize pacman
+    - name: Initialize system
       run: |
-        pacman-key --init
-        pacman-key --populate archlinux
+        # 创建普通用户
+        useradd -m -G wheel -s /bin/bash builder
+        echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+        
+        # 初始化密钥环
+        sudo -u builder pacman-key --init
+        sudo -u builder pacman-key --populate archlinux
 
     - name: Install dependencies
       run: |
-        pacman -Sy --noconfirm archiso reflector git base-devel
+        # 使用普通用户安装系统依赖
+        sudo -u builder sudo pacman -Sy --noconfirm archiso reflector git base-devel
+        
         # 安装aurutils
-        git clone https://aur.archlinux.org/aurutils.git
+        sudo -u builder git clone https://aur.archlinux.org/aurutils.git
         cd aurutils
-        makepkg -si --noconfirm
+        sudo -u builder makepkg -si --noconfirm
         cd ..
-        # 创建alpm用户组
+        
+        # 创建必要的用户组
         groupadd -f alpm
+        usermod -aG alpm builder
 
     - name: Make build script executable
       run: chmod +x build.bash
 
     - name: Run build script
-      run: ./build.bash --noconfirm
+      run: |
+        # 切换用户执行构建脚本
+        sudo -u builder ./build.bash --noconfirm
 
     - name: Upload ISO artifact
       uses: actions/upload-artifact@v4
