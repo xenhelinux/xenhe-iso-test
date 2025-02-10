@@ -20,7 +20,7 @@ jobs:
     - name: Setup system
       run: |
         # 先安装sudo
-        pacman -Sy --noconfirm sudo
+        pacman -Syu --noconfirm sudo
         # 创建 builder 用户和组
         useradd -m -s /bin/bash builder
         echo 'builder ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
